@@ -14,9 +14,8 @@ Currently has the following capabilities:
     * PKCS#7 Padding
     * AES-CBC Decryption
     * ECB/CBC Detection
-    * Byte-At-A-Time ECB Decryption I
     * ECB Cut-and-Paste
-    * Byte-At-A-Time ECB Decryption II
+    * Byte-At-A-Time ECB Decryption
     * PKCS#7 Padding Validation
     * CBC Bitflipping Attack
 
@@ -47,7 +46,11 @@ from crypto_tools import is_ecb_encoded
 from crypto_tools import AES_ECB_decrypt
 from crypto_tools import pad
 from crypto_tools import AES_CBC_decrypt
-
+from crypto_tools import rand_k
+from crypto_tools import encrypt_ECB_or_CBC
+from crypto_tools import detect_ECB_or_CBC
+from crypto_tools import unpad
+from crypto_tools import verify_pkcs7_padding
 
 from itertools import cycle
 from binascii import unhexlify
@@ -69,13 +72,12 @@ def main():
 -8  : AES-ECB Detection
 -9  : AES-ECB Decryption
 -10  : PKCS#7 Padding
--11  : AES-CBC Decryption			[Under work]
--12  : ECB/CBC Detection			[Under work]
--13  : Byte-At-A-Time ECB Decryption I		[Under work]
--14  : ECB Cut-and-Paste			[Under work]
--15  : Byte-At-A-Time ECB Decryption II		[Under work]
--16  : PKCS#7 Padding Validation		[Under work]
--17  : CBC Bitflipping Attack			[Under work]
+-11  : AES-CBC Decryption			
+-12  : ECB/CBC Detection			
+-13  : ECB Cut-and-Paste			[Under work]
+-14  : Byte-At-A-Time ECB Decryption		[Under work]
+-15  : PKCS#7 Padding Validation		
+-16  : CBC Bitflipping Attack			[Under work]
         '''
         sys.exit(0)
 
@@ -327,26 +329,51 @@ Options:
         try:
             data = raw_input("Enter the filepath of the file to decrypt: ")
             with open(data, 'r') as f:
-                with open(data, 'r') as f:
-                    enco = raw_input("Is the file hex-encoded or base64-encoded? Type 'h' or 'b'.\n")
-                    if enco == 'b':
-                        data = f.read().decode('base64')
-                    elif enco == 'h':
-                        inp = f.read().strip()
-                        data = unhexlify(inp)
-                    else:
-                        print "Please type either the letter h or b."
+                enco = raw_input("Is the file hex-encoded or base64-encoded? Type 'h' or 'b'.\n")
+                if enco == 'b':
+                    data = f.read().decode('base64')
+                elif enco == 'h':
+                    inp = f.read().strip()
+                    data = unhexlify(inp)
+                else:
+                    print "Please type either the letter h or b."
 
-                    key = raw_input("Enter the key: ")
-                    iv = raw_input("Enter the initialization vector (IV): ")
+                key = raw_input("Enter the key: ")
+                iv = raw_input("Enter the initialization vector (IV): ")
 
-                    print AES_CBC_decrypt(data, key, iv)
+                print AES_CBC_decrypt(data, key, iv)
 
         except Exception as e:
             print e
             sys.exit(0)
 
 
-main()
+    if option == "-12":
+        try:
+            data = raw_input("Enter the filepath of the file to decrypt: ")
+            with open(data, 'r') as f:
+                data = f.read()
 
+                # for loop to confirm it is working
+                for i in range(20):
+                    oracle = encrypt_ECB_or_CBC(data)
+                    guess = detect_ECB_or_CBC(oracle)
+                    print guess
+
+        except Exception as e:
+            print e
+            sys.exit(0)
+
+
+
+    if option == "-15":
+        print "[*] Edit Cryptan and enter the string into the array, then run Cryptan again.\n"
+        padded = ["ICE ICE BABY\x04\x04\x04\x04"]
+        for s in padded:
+            verify_pkcs7_padding(s)
+
+
+
+
+main()
 
