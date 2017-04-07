@@ -19,7 +19,6 @@ Cryptan - A cryptography suite in development.
     
 **Currently working on adding:**
 
-    * Byte-At-A-Time ECB Decryption I
     * ECB Cut-and-Paste
     * Byte-At-A-Time ECB Decryption II
     * CBC Bitflipping Attack
